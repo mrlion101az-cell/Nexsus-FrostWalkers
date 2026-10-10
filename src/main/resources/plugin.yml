@@ -1,0 +1,21 @@
+name: NexusRime
+version: ${project.version}
+main: com.nexuscraft.nexusrime.NexusRimePlugin
+api-version: '1.21'
+author: Nexus Universe
+softdepend: [NexusSeasons, NexusRealms, NexusHeartbeat]
+description: Winter horde events -- a Rimewalker, or a scheming Frost Knight, leads an army of Rimebound through the snow. Only dragonglass gear or fire can stop them. Mine obsidian for shards, or craft them, then craft blades, daggers, spears and arrows.
+
+commands:
+  rime:
+    description: See the winter horde, learn the dragonglass recipes, and (admins) start or stop one.
+    aliases: [winterhorde, rimewalker]
+    usage: /rime [status|recipe [item]|start [player] [knight|walker]|stop|give|reload]
+
+permissions:
+  nexusrime.use:
+    description: Check the horde's status and the dragonglass recipes.
+    default: true
+  nexusrime.admin:
+    description: Start and stop hordes, give dragonglass gear, and reload the config.
+    default: op

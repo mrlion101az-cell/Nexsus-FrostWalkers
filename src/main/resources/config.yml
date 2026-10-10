@@ -1,0 +1,334 @@
+# NexusRime -- winter horde events.
+#
+# Now and then, in winter, a frost-wreathed Rimewalker rises far from one player and marches on them
+# at the head of an army of Rimebound. It brings a blizzard and a creeping cold. The Rimewalker
+# barely feels ordinary weapons: only dragonglass gear (or fire) truly hurts it. When it
+# falls, every Rimebound it raised crumbles to frost.
+#
+# Everything the players read is renamed in "names" below, so you can theme it any way you like.
+# Messages understand &-colour codes and the placeholders {walker} {wight} {weapon} {shard} {event}
+# {target} {world}.
+
+names:
+  walker: "Rimewalker"
+  wight: "Rimebound"
+  weapon: "Dragonglass Blade"
+  shard: "Dragonglass Shard"
+  dagger: "Dragonglass Dagger"
+  spear: "Dragonglass Spear"
+  arrow: "Dragonglass Arrow"
+  event: "the Long Winter"
+  knight: "Frost Knight"
+
+events:
+  enabled: true
+  # How often the dice are rolled, and the chance (percent) that a roll starts a horde when
+  # everything else allows it.
+  check-interval-minutes: 10
+  chance-percent: 8
+  # Minimum quiet time between two hordes, and how many may walk at once.
+  cooldown-minutes: 120
+  max-concurrent: 1
+  min-players: 1
+  # A horde that has not been beaten by now fades away.
+  max-duration-minutes: 25
+  # Only these worlds ever see a horde.
+  worlds:
+    - world
+  season:
+    # Hordes only walk in winter (asks NexusSeasons). Turn off to allow them in any season.
+    winter-only: true
+    # If NexusSeasons is not installed (or cannot be reached): false = no natural hordes at all,
+    # true = hordes may walk in any season. An admin can always start one with /rime start.
+    allow-when-seasons-missing: false
+  # How far from its target the Rimewalker rises.
+  spawn-distance: 80
+  # If everyone it hunts is gone or safe, how long it keeps looking before it fades.
+  lost-target-seconds: 45
+  announce: true
+
+walker:
+  health: 180
+  scale: 1.35
+  speed: 0.23
+  knockback-resistance: 0.8
+  boss-bar: true
+  boss-bar-range: 120
+  nova:
+    # A burst of frost that freezes, slows, hurts and shoves back everyone close to it.
+    enabled: true
+    radius: 7
+    cooldown-seconds: 18
+    damage: 4.0
+  # A player the horde kills rises again as one of the Rimebound.
+  raise-fallen: true
+
+# ---------------------------------------------------------------------------------------------
+# Obsidian. Mining it (with a pick that actually gets obsidian out of the ground) has a chance to
+# shake loose Dragonglass Shards as well, on top of the obsidian itself. Never in creative mode, and
+# never for crying obsidian.
+# ---------------------------------------------------------------------------------------------
+obsidian-drop:
+  enabled: true
+  chance-percent: 10
+  # How many shards a lucky block gives: a number from min to max.
+  min: 1
+  max: 2
+
+# ---------------------------------------------------------------------------------------------
+# The Frost Knight. Some hordes are led by a Frost Knight instead of a plain Rimewalker. He is
+# tougher, raises his army faster, and above all he THINKS: he plans a route to his target across
+# the real terrain and directs the Rimebound through every obstacle on it.
+#   * doors, trapdoors and fence gates: a crowd of Rimebound throws itself at the door until it
+#     breaks. The door drops as an item and STAYS broken. Never on safe ground (spawn, NexusRealms).
+#   * walls and cliffs: the Rimebound pile on each other to climb them, and pass the whole army over.
+#   * water and lava: the Knight freezes a bridge of ice across (lava too). Bridges thaw back into
+#     the liquid after a while, and when the horde ends, and are put right after a crash.
+# He uses these only when they are cheaper than walking round, so he goes the easy way when there is one.
+# Dragonglass and fire hurt him exactly as they hurt the Rimewalker.
+# ---------------------------------------------------------------------------------------------
+knight:
+  # Chance (percent) that a natural horde is led by a Frost Knight. /rime start [player] knight forces one.
+  chance-percent: 25
+  health: 320
+  scale: 1.5
+  speed: 0.24
+  knockback-resistance: 0.9
+  nova-cooldown-seconds: 14
+  # He raises more Rimebound, more often, and may keep this many more alive than the normal limit.
+  reinforce-seconds: 12
+  reinforce-count: 4
+  extra-wights: 20
+  rewards:
+    xp: 1000
+    drops:
+      - "BLUE_ICE:16"
+      - "DIAMOND:6"
+      - "ECHO_SHARD:2"
+      - "DRAGONGLASS:6"
+  tactics:
+    # How often he re-plans, and how big a search he may run (more = smarter but heavier).
+    plan-seconds: 5
+    plan-nodes: 5000
+    plan-radius: 56
+    # Within this many blocks of the target the Rimebound stop following the plan and attack.
+    engage-distance: 14
+    # If he cannot make progress for this long he looks again; if that keeps failing he marches plainly.
+    max-stuck-seconds: 10
+  breach:
+    enabled: true
+    # How much he dislikes smashing a door, compared with walking one block (higher = more detours).
+    plan-cost: 10
+    # Damage a door must take. Every Rimebound at the door adds damage-per-wight each second (at most
+    # max-contributors of them), and the Knight adds knight-power. Iron doors are iron-factor times tougher.
+    door-strength: 60
+    iron-factor: 2.5
+    damage-per-wight: 1.0
+    knight-power: 3.0
+    crew: 8
+    max-contributors: 12
+    # A siege that gets nowhere this long gives up; that door counts as a wall from then on.
+    timeout-seconds: 90
+  stack:
+    enabled: true
+    # The tallest wall they will climb. A pile needs about one body per two blocks, plus one.
+    max-height: 8
+    # The pile is built a body at a time over this long, so you can watch it grow.
+    build-seconds: 5
+    # Outline the pile and the climbers (the glowing effect), so the stack shows through walls.
+    glow: true
+    gather-seconds: 20
+    climbers-per-second: 5
+  bridge:
+    enabled: true
+    # Packed ice does not melt beside lava the way plain ice would.
+    material: PACKED_ICE
+    blocks-per-second: 3
+    # Longest bridge he will build in one plan; longer crossings are walked round.
+    max-blocks: 32
+    lifetime-seconds: 90
+    reach: 10
+
+wights:
+  # Opening army size: base + per-player (players in that world), never above start-max.
+  base: 10
+  per-player: 2
+  start-max: 36
+  # The Rimewalker keeps raising more until this many are alive.
+  max-alive: 40
+  health: 14
+  speed: 0.25
+  reinforce-seconds: 20
+  reinforce-count: 3
+
+damage:
+  # Ordinary weapons only scratch the walker: damage is multiplied by this.
+  walker-ordinary-multiplier: 0.05
+  # Fire hurts the walker for real. fire-max-per-hit stops a lava pit from being an instant win.
+  walker-fire-multiplier: 3.0
+  fire-max-per-hit: 4.0
+  # Dragonglass gear multiplies the swing (so cooldown, crits and sharpness still count), times the
+  # gear's own potency below.
+  forged-walker-multiplier: 2.0
+  # ...and shatters a wight in one blow (whatever the piece).
+  forged-wight-multiplier: 6.0
+  # Wights are weak to fire.
+  wight-fire-multiplier: 2.5
+
+# ---------------------------------------------------------------------------------------------
+# Dragonglass. Players craft Dragonglass Shards, then craft the gear from the shards. Every piece
+# below wounds the Rimewalker and shatters the Rimebound; "potency" says how hard it hits the
+# Rimewalker compared with the blade (1.0). Each piece has its own recipe, which you may change or
+# switch off with recipe-enabled: false.
+#
+# Recipes:
+#  * shaped ones use "shape" (1-3 rows, 1-3 characters each, space = empty) and "ingredients"
+#    (a letter -> material map); the shapeless shard recipe uses a plain list of materials.
+#  * the word DRAGONGLASS as an ingredient means "a Dragonglass Shard".
+#  * a shard is never accepted by any other recipe, and shards cannot be crafted into more shards.
+#  * "material" is the item the piece looks like. Keep the arrow an ARROW and the spear a TRIDENT
+#    (a thrown trident is how the spear is thrown).
+#  * a shard's base item (FLINT by default) can still be crafted normally; only real shards are
+#    special.
+# ---------------------------------------------------------------------------------------------
+
+dragonglass:
+  material: FLINT
+  recipe-enabled: true
+  recipe:
+    # One lump of obsidian cracks into this many shards.
+    amount: 2
+    ingredients:
+      - OBSIDIAN
+
+weapon:
+  material: DIAMOND_SWORD
+  recipe-enabled: true
+  potency: 1.0
+  recipe:
+    amount: 1
+    shape:
+      - " S "
+      - "SDS"
+      - " T "
+    ingredients:
+      S: DRAGONGLASS
+      D: DIAMOND
+      T: STICK
+
+dagger:
+  material: IRON_SWORD
+  recipe-enabled: true
+  potency: 0.7
+  recipe:
+    amount: 1
+    shape:
+      - "S"
+      - "S"
+      - "T"
+    ingredients:
+      S: DRAGONGLASS
+      T: STICK
+
+spear:
+  material: TRIDENT
+  recipe-enabled: true
+  potency: 0.75
+  recipe:
+    amount: 1
+    shape:
+      - " SS"
+      - " TS"
+      - "T  "
+    ingredients:
+      S: DRAGONGLASS
+      T: STICK
+
+arrow:
+  material: ARROW
+  recipe-enabled: true
+  potency: 0.6
+  recipe:
+    # Crafted in a single row, so it can never be confused with an ordinary arrow.
+    amount: 4
+    shape:
+      - "STF"
+    ingredients:
+      S: DRAGONGLASS
+      T: STICK
+      F: FEATHER
+
+cold:
+  # How far the Rimewalker's chill reaches.
+  radius: 40
+  interval-seconds: 1
+  # Frost added per cycle at point-blank range, fading to nothing at the edge of the radius.
+  # (The game thaws about 40 per second by itself, so the cold only builds up when it is near.)
+  frost-per-cycle: 100
+  # Slowness while in the whiteout (0 = Slowness I). -1 turns the slowness off.
+  slowness-amplifier: 0
+  # Each piece of leather armour worn cuts the frost by this much (four pieces is near-immunity).
+  leather-protection-per-piece: 0.25
+  # Standing within this many blocks of any of these stops the frost entirely.
+  warmth-radius: 3
+  warmth-blocks:
+    - CAMPFIRE
+    - SOUL_CAMPFIRE
+    - FIRE
+    - SOUL_FIRE
+    - LAVA
+    - FURNACE
+    - BLAST_FURNACE
+    - SMOKER
+    - MAGMA_BLOCK
+    - TORCH
+  particles: true
+  # Extra frost when a horde creature actually hits you.
+  wight-hit-frost-ticks: 100
+
+blizzard:
+  # Turn on the world's storm while a horde walks, and clear it when the horde ends.
+  force-storm: true
+  clear-on-end: true
+
+zones:
+  # The cold never enters safe ground: a horde creature that steps onto it crumbles, a walker that
+  # reaches it ends the whole horde, and nothing on the horde can hurt someone standing there.
+  protected-worlds: []
+  spawn-protection:
+    worlds:
+      - world
+    radius: 128
+  # Land claims from NexusRealms count as safe ground (needs NexusRealms; ignored without it).
+  use-realms: true
+  # What counts as "claimed": "territory" (a team owns the chunk), "build" (a stranger could not
+  # build there -- also catches personal claims), or "both". If your Realms setup forbids building
+  # in open wilderness, use "territory" so the whole map is not treated as protected.
+  realms-check: both
+
+rewards:
+  xp: 500
+  drops:
+    - "BLUE_ICE:8"
+    - "DIAMOND:3"
+    - "ECHO_SHARD:1"
+    # Tip: "DRAGONGLASS:4" drops four Dragonglass Shards.
+
+messages:
+  warn: "&b&lA bitter wind rises. {walker} leads its army toward {target}!"
+  warn-target: "&3The {walker} is coming for you. Light fires, wear leather, and keep a {weapon} ready."
+  victory: "&a{walker} has fallen, and its {wight} crumble to frost."
+  faded: "&7The cold lifts. {walker} and its army fade into the snow."
+  dissolved: "&7The cold cannot pass the wards. {walker} and its army crumble at the edge of safe ground."
+  season-ended: "&7Winter is over. {walker} and its army melt away."
+  lost-target: "&7{walker} has lost the scent and withers away."
+  frozen: "&bThe cold bites through you."
+  # {knight} is the Frost Knight's name, {liquid} is "water" or "lava".
+  knight-warn: "&b&lA bitter wind rises. The {knight} leads an army toward {target}, and it thinks."
+  knight-breach: "&3The {knight} raises a hand. The {wight} throw themselves at a door!"
+  knight-stack: "&3The {knight} raises a hand. The {wight} pile upon each other to climb!"
+  knight-bridge: "&3The {knight} raises a hand. Ice spreads over the {liquid}!"
+
+heartbeat:
+  # Report horde events to NexusHeartbeat (if installed) so they feed the world mood.
+  enabled: true
